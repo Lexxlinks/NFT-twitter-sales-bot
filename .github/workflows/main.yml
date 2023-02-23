@@ -3,7 +3,7 @@ name: send-tweet
 on:
   schedule:
     # Runs "at minute 5 past every hour" (see https://crontab.guru)
-    - cron: '5 * * * *'
+    - cron: '*/5 * * * *'
 jobs:
   tweet:
     runs-on: ubuntu-latest
