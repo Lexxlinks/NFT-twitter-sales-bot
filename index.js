@@ -1,62 +1,57 @@
 require("dotenv").config({ path: __dirname + "/.env" });
 
-const { createAlchemyWeb3 } = require("@alch/alchemy-web3");
-const { TwitterApi } = require("twitter-api-v2");
 const { ethers } = require("ethers");
+const { TwitterApi } = require("twitter-api-v2");
 
-const alchemyKey = process.env.ALCHEMY_KEY;
-const infuraKey = process.env.INFURA_KEY;
-const privateKey = process.env.PRIVATE_KEY;
-const publicKey = process.env.PUBLIC_KEY;
-const twitterApiKey = process.env.TWITTER_API_KEY;
-const twitterApiSecretKey = process.env.TWITTER_API_SECRET_KEY;
-const twitterAccessToken = process.env.TWITTER_ACCESS_TOKEN;
-const twitterAccessTokenSecret = process.env.TWITTER_ACCESS_TOKEN_SECRET;
+const API_KEY = process.env.API_KEY;
+const API_SECRET = process.env.API_SECRET;
+const ACCESS_TOKEN = process.env.ACCESS_TOKEN;
+const ACCESS_SECRET = process.env.ACCESS_SECRET;
 
-const web3 = createAlchemyWeb3(alchemyKey);
+const NFT_CONTRACT_ADDRESS = "0xd563272eea17F8CE929171c2bA62b1c7FB4756aE";
+const NFT_TOKEN_ID = 1;
+const NETWORK = "mainnet";
+const INFURA_PROJECT_ID = process.env.INFURA_PROJECT_ID;
 
-const provider = new ethers.providers.InfuraProvider("mainnet", infuraKey);
-const signer = new ethers.Wallet(privateKey);
-const address = publicKey;
-const contractAbi = [
-  "function ownerOf(uint256 tokenId) view returns (address)",
-  "event Transfer(address indexed _from, address indexed _to, uint256 indexed _tokenId)"
-];
-const contractAddress = "0x...";
-const contract = new ethers.Contract(contractAddress, contractAbi, provider);
-const contractWithSigner = contract.connect(signer);
+const provider = new ethers.providers.InfuraProvider(NETWORK, INFURA_PROJECT_ID);
+const contract = new ethers.Contract(NFT_CONTRACT_ADDRESS, abi, provider);
 
 const twitterClient = new TwitterApi({
-  appKey: twitterApiKey,
-  appSecret: twitterApiSecretKey,
-  accessToken: twitterAccessToken,
-  accessSecret: twitterAccessTokenSecret,
+  appKey: API_KEY,
+  appSecret: API_SECRET,
+  accessToken: ACCESS_TOKEN,
+  accessSecret: ACCESS_SECRET,
 });
 
-const tweet = async (message) => {
+async function main() {
   try {
-    await twitterClient.v2.tweet(message);
-    console.log("Tweeted:", message);
-  } catch (e) {
-    console.log("Error:", e);
+    const filter = {
+      address: NFT_CONTRACT_ADDRESS,
+      topics: [
+        ethers.utils.id("Transfer(address,address,uint256)"),
+        null,
+        ethers.utils.hexZeroPad(ethers.BigNumber.from(NFT_TOKEN_ID).toHexString(), 32),
+      ],
+    };
+    
+    console.log(`Listening for sales of NFT with token ID ${NFT_TOKEN_ID}...`);
+    
+    contract.on(filter, async (from, to, tokenId, event) => {
+      console.log(`NFT with token ID ${tokenId.toString()} was sold!`);
+      
+      const tweetText = `Just sold NFT ${NFT_TOKEN_ID}!`;
+      
+      const tweet = await twitterClient.v2.tweet(tweetText);
+      console.log(`Tweeted: ${tweet.text}`);
+    });
+    
+  } catch (error) {
+    console.log(error);
   }
-};
+}
 
-const handleSale = async (tokenId, buyer) => {
-  try {
-    const owner = await contract.ownerOf(tokenId);
-    if (owner === address && buyer !== address) {
-      const message = `NFT Sale Alert 🚨\n\nToken ID: ${tokenId}\nBuyer: ${buyer}\n\n#NFT #CryptoArt #${contractAddress}`;
-      await tweet(message);
-    }
-  } catch (e) {
-    console.log("Error:", e);
-  }
-};
+main();
 
-contractWithSigner.on("Transfer", (from, to, tokenId) => {
-  handleSale(tokenId, to);
-});
 
 
 
