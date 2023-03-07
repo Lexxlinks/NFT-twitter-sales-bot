@@ -1,14 +1,16 @@
-require("dotenv").config({ path: __dirname + "/.env" });
+import { ethers } from "ethers";
+import { TwitterApi } from "twitter-api-v2";
+import dotenv from "dotenv";
+import path from "path";
 
-const { ethers } = require("ethers");
-const { TwitterApi } = require("twitter-api-v2");
+dotenv.config({ path: path.join(new URL(import.meta.url).pathname, ".env") });
 
 const API_KEY = process.env.API_KEY;
 const API_SECRET = process.env.API_SECRET;
 const ACCESS_TOKEN = process.env.ACCESS_TOKEN;
 const ACCESS_SECRET = process.env.ACCESS_SECRET;
 
-const NFT_CONTRACT_ADDRESS = "0xd563272eea17F8CE929171c2bA62b1c7FB4756aE";
+const NFT_CONTRACT_ADDRESS = "";
 const NFT_TOKEN_ID = 1;
 const NETWORK = "mainnet";
 const INFURA_PROJECT_ID = process.env.INFURA_PROJECT_ID;
@@ -51,6 +53,8 @@ async function main() {
 }
 
 main();
+
+
 
 
 
