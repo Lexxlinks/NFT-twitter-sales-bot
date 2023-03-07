@@ -40,7 +40,7 @@ async function main() {
     contract.on(filter, async (from, to, tokenId, event) => {
       console.log(`NFT with token ID ${tokenId.toString()} was sold!`);
       
-      const tweetText = `Just sold NFT ${NFT_TOKEN_ID}!`;
+      const tweetText = `Just sold NFT ${NFT_TOKEN_IDS}!`;
       
       const tweet = await twitterClient.v2.tweet(tweetText);
       console.log(`Tweeted: ${tweet.text}`);
@@ -52,10 +52,4 @@ async function main() {
 }
 
 main();
-
-
-
-
-
-
 
