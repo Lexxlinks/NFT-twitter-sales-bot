@@ -1,7 +1,6 @@
-const { ethers } = require('ethers');
-const { InfuraProvider } = require('@ethersproject/providers');
-const { TwitterApi } = require('twitter-api-v2');
-const Ratelimiter = require('ratelimiter');
+import { ethers } from 'ethers';
+import { InfuraProvider } from '@ethersproject/providers';
+import { TwitterApi } from 'twitter-api-v2';
 
 // Load environment variables
 require('dotenv').config();
