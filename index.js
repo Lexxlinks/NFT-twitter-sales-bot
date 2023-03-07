@@ -3,9 +3,6 @@ import { TwitterApi } from "twitter-api-v2";
 import dotenv from "dotenv";
 import path from "path";
 
-
-
-
 dotenv.config({ path: path.join(new URL(import.meta.url).pathname, ".env") });
 
 const API_KEY = process.env.API_KEY;
